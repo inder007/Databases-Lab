@@ -29,16 +29,16 @@ int LinearHashing::twoPower(int p){
 	return 1<<p;
 }
 
-int LinearHashing::getCloset2Power(int val){
-    int i=1;
-	for(i=0;i<32;i++){
-        if(val < 1<<i){
-            break;
-        }
-    }
-    i--;
-    return 1<<i;
-}
+// int LinearHashing::getCloset2Power(int val){
+//     int i=1;
+// 	for(i=0;i<32;i++){
+//         if(val < 1<<i){
+//             break;
+//         }
+//     }
+//     i--;
+//     return 1<<i;
+// }
 
 void LinearHashing::createHashTable(int noOfBuckets, int bucketSize){
 	// int buckets = twoPower(globalDepth);
@@ -126,14 +126,14 @@ void LinearHashing::splitBucket(int bucketIndex){
 	/*distributing values to two buckets*/
 	for(auto itr=firstBucket.begin();itr!=firstBucket.end();){
 		int bIndex=(*itr)%(2*this->twoPower(this->level)*this->noOfBuckets);
-		cout<<bIndex<<" "<<*itr<<endl;
+		// cout<<bIndex<<" "<<*itr<<endl;
 		if(bIndex == this->dir.size()-1){
 			secondBucket.push_back(*itr);
 			itr = firstBucket.erase(itr);
 		}
 		else itr++;
 	}
-	this->next = (this->next+1)%((twoPower(level))*(this->noOfBuckets));
+	this->next = (this->next+1)%((this->twoPower(this->level))*(this->noOfBuckets));
     if(this->next == 0){
         this->level++;
     }
@@ -146,6 +146,7 @@ void LinearHashing::splitBucket(int bucketIndex){
 void LinearHashing::printHashTable(){
 	cout<<"\n ***** Hash Table ***** \n"<<endl;
 	cout<<"noOfBuckets :: " << this->noOfBuckets<<endl;
+	cout<<"Next pointer points at: "<<this->next<<endl;
 	unordered_set<Bucket*> uset;
 	cout<<"| Elements |"<<endl;
 	for(int i=0; i<this->dir.size(); i++){
@@ -154,7 +155,7 @@ void LinearHashing::printHashTable(){
 		// cout<<this->dir[i]->localDepth<<" :: | ";
 		uset.insert(this->dir[i]);
 		for(auto l:this->dir[i]->bucket)
-			cout<<l<<" ";
+			cout<<" | "<<l<<" ";
 		cout<<"|" <<endl;
 	}
 	cout<<endl;
@@ -166,10 +167,9 @@ int main(){
 	int choice;
 	LinearHashing *d=NULL;
 	do{
-		cout<<"1. Create new ExtendibleHashTable"<<endl;
+		cout<<"1. Create new LinearHashTable"<<endl;
 		cout<<"2. Add an element to the HashTable"<<endl;
 		cout<<"3. Search an element to the HashTable"<<endl;
-		cout<<"4. Delete an element from the HashTable"<<endl;
 		cout<<"5. Print HashTable"<<endl;
 
 		cout<<"Any other choice to exit"<<endl;
@@ -182,7 +182,7 @@ int main(){
 					delete d;
 				d= new LinearHashing();
 				int globalDepth;
-				cout<<"Enter global depth: ";
+				cout<<"Enter total No of Buckets: ";
 				cin>>globalDepth;
 				int bucketSize;
 				cout<<"Enter number of entries in bucket: ";
@@ -190,12 +190,20 @@ int main(){
 				d->createHashTable(globalDepth,bucketSize);
 				break;
 			case 2:
+				if(d == NULL){
+					cout<<"Segmentation Fault(Core Dumped)\n"<<endl;
+					break;
+				}
 				int add;
 				cout<<"Enter element to add: ";
 				cin>>add;
 				d->insertElement(add);
 				break;
 			case 3:
+				if(d == NULL){
+					cout<<"Segmentation Fault(Core Dumped)\n"<<endl;
+					break;
+				}
 				int search;
 				cout<<"Enter element to search: ";
 				cin>>search;
@@ -214,6 +222,10 @@ int main(){
 			// 		cout<<"Element is not found"<<endl;
 				// break;
 			case 5:
+				if(d == NULL){
+					cout<<"Segmentation Fault(Core Dumped)\n"<<endl;
+					break;
+				}
 				d->printHashTable();
 				break;
 			default:
