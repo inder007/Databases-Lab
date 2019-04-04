@@ -1,11 +1,14 @@
-#define DISK_PAGE_SIZE 7
-#define MEM_FRAME_SIZE 7
+// #define DISK_PAGE_SIZE 7
+// #define MEM_FRAME_SIZE 7
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
+
+int DISK_PAGE_SIZE;
+int MEM_FRAME_SIZE;
 
 class Page{
 public:
@@ -202,8 +205,11 @@ void Page :: fillPage(vector<int> &v){
 //fills frame with data from vector v
 void Frame :: fillFrame(vector<int> &v){
 	int i = 0;
+	// cout<<v.size()<<" f cbc"<<endl;
+	// cout<<this->arr.size()<<" bc"<<endl;
 	bool flag = false;
 	while(i < v.size() && i < MEM_FRAME_SIZE){
+		// cout<<i<<endl;
 		this->arr[i] = v[i];
 		if(v[i] == -1){
 			flag = true;
@@ -238,6 +244,8 @@ int MainMemory :: loadPage(DiskFile &f, int n){
 
 	for(int i = 0; i < this->totalFrames; i++){
 		if(!this->valid[i]){
+			// cout<<f.data[n].arr.size()<<" check "<<endl;
+			// cout<<this->data[i].arr.size()<<" dsfsd"<<endl;
 			this->data[i].fillFrame(f.data[n].arr);
 			this->valid[i] = true;
 			return i;
@@ -385,6 +393,7 @@ void ExtMergeSort :: merge(DiskFile &inputFile, MainMemory &memory, vector<int> 
 	// int r = mid + 1;
 	vector<int> frameNo;
 	for(auto itr=indicies.begin();itr!=indicies.end();itr++){
+		// cout<<*itr<<" dg "<<endl;
 		int f=memory.loadPage(inputFile, *itr);
 		frameNo.push_back(f);
 		if(f==-1){
@@ -395,7 +404,9 @@ void ExtMergeSort :: merge(DiskFile &inputFile, MainMemory &memory, vector<int> 
 
 	// int leftFrame = memory.loadPage(inputFile, l);
 	// int rightFrame = memory.loadPage(inputFile, r);
+	// cout<<"adas"<<endl;
 	int resFrame = memory.getEmptyFrame();	//frame to store result
+	// cout<<"ypo"<<endl;
 	if(resFrame == -1){
 		cout << "Can't proceed further due to unavailability of memory or invalid Page access" << endl;
 		exit(1); 
@@ -515,15 +526,17 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory, int fla
 int main()
 {
 	int flag; //if flag=0 normal else double buffering
-	cin>>flag;
+	
 	int x;
 	//reads size of main memory in terms of number of frames available
 	cin >> x;
-
+	cin>>DISK_PAGE_SIZE;
+	MEM_FRAME_SIZE=DISK_PAGE_SIZE;
 	//create main memory of x frames
 	MainMemory mm(x);
+	
 
-
+	cin>>flag;
 	//create a file by taking input from cin
 	DiskFile f;
 	f.readDiskFile();
