@@ -103,7 +103,7 @@ public:
 	void firstPass(DiskFile &inputFile, MainMemory &memory);
 	void sortFrame(MainMemory &memory, int f);
 	void merge(DiskFile &inputFile, MainMemory &memory, vector<int> &indicies, vector<int> &ends);
-	void twoWaySort(DiskFile &inputFile, MainMemory &memory, int flag);
+	void twoWaySort(DiskFile &inputFile, MainMemory &memory);
 
 };
 
@@ -461,7 +461,7 @@ void ExtMergeSort :: merge(DiskFile &inputFile, MainMemory &memory, vector<int> 
 }
 
 //Performs 2 way merge sort on inputFile using memory
-void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory, int flag){
+void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory){
 	// cout<<memory.totalFrames<<endl;
 	if(memory.totalFrames < 3)
 		cout << "Error: Two way merge sort requires atleast 3 frames" << endl; 
@@ -470,10 +470,6 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory, int fla
 
 	int leftStart;
 	int t=(memory.totalFrames-2)/2;
-	if(flag==1){
-		t=(memory.totalFrames-1);
-	}
-	
 	for(;this->runSize<inputFile.totalPages;this->runSize*=t){
 		cout << "runSize: " << this->runSize << endl;
 		vector<int> indices;
@@ -514,8 +510,6 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory, int fla
 
 int main()
 {
-	int flag; //if flag=0 normal else double buffering
-	cin>>flag;
 	int x;
 	//reads size of main memory in terms of number of frames available
 	cin >> x;
@@ -532,7 +526,7 @@ int main()
 	ExtMergeSort e;
 	
 	//call 2 way externalmerge sort
-	e.twoWaySort(f,mm, flag);
+	e.twoWaySort(f,mm);
 
 	//output file by using cout
 	f.writeDiskFile(); 
