@@ -102,7 +102,7 @@ public:
 
 	void firstPass(DiskFile &inputFile, MainMemory &memory);
 	void sortFrame(MainMemory &memory, int f);
-	void merge(DiskFile &inputFile, MainMemory &memory, vector<int> indicies, vector<int> ends);
+	void merge(DiskFile &inputFile, MainMemory &memory, vector<int> &indicies, vector<int> &ends);
 	void twoWaySort(DiskFile &inputFile, MainMemory &memory);
 
 };
@@ -186,11 +186,14 @@ void Page :: fillPage(vector<int> &v){
 	}
 	int i = 0;
 	this->validEntries = 0;
-	for(i; i < v.size() && i < DISK_PAGE_SIZE; i++){
+	for(i=0; i < v.size() && i < DISK_PAGE_SIZE; i++){
 		if(v[i] == -1){
 			this->validEntries = i;
 		}
 		this->arr[i] = v[i];
+	}
+	if(this->validEntries==0){
+		this->validEntries=DISK_PAGE_SIZE;
 	}
 }
 
@@ -305,16 +308,62 @@ void ExtMergeSort :: firstPass(DiskFile &inputFile, MainMemory &memory){
 	
 	int frame = -1;
 	// load each page to main memory frame and sort
+	// for(int i = 0; i < inputFile.totalPages; i++){
+	// 	frame = memory.loadPage(inputFile, i);
+	// 	this->sortFrame(memory, frame);
+	// 	memory.writeFrame(inputFile, frame, i);
+	// 	memory.freeFrame(frame);
+	// }
+	int ct=0;
+	vector<int> tp;
+	int st=0;
 	for(int i = 0; i < inputFile.totalPages; i++){
-		frame = memory.loadPage(inputFile, i);
-		this->sortFrame(memory, frame);
-		memory.writeFrame(inputFile, frame, i);
-		memory.freeFrame(frame);
+		// cout<<memory.totalFrames<<" "<<ct<<endl;
+		if(ct<memory.totalFrames){
+			// cout<<"sf "<<inputFile.data[i].validEntries<<endl;
+			for(int j=0;j<inputFile.data[i].validEntries;j++){
+				tp.push_back(inputFile.data[i].arr[j]);
+			}
+			// cout<<tp.size()<<endl;
+			ct++;
+		}
+		
+		if(ct==memory.totalFrames){
+			cout<<st<<endl;	
+			sort(tp.begin(),tp.end());
+			for(int j=0;j<memory.totalFrames && j+st<inputFile.totalPages;j++){
+				vector<int> t(DISK_PAGE_SIZE,-1);				
+				for(int k=0;k<DISK_PAGE_SIZE && tp.size()>0;k++){
+					t[k]=tp[0];
+					tp.erase(tp.begin());
+				}
+				inputFile.data[j+st].fillPage(t);
+			}
+			// tp.erase(tp.begin(),tp.end());
+			ct=0;
+			st=i+1;
+			// i--;
+		}
+		
 	}
-	
-	runSize = 1;
+	if(ct>0){
+		sort(tp.begin(),tp.end());
+		for(int j=0;j<memory.totalFrames && j+st<inputFile.totalPages;j++){
+			vector<int> t(DISK_PAGE_SIZE,-1);				
+			for(int k=0;k<DISK_PAGE_SIZE && tp.size()>0;k++){
+				t[k]=tp[0];
+				tp.erase(tp.begin());
+			}
+			inputFile.data[j+st].fillPage(t);
+		}
+	}
+
+
+
+	runSize = memory.totalFrames;
+	// runSize=1;
 	totalPass = 1;
-	totalRuns = inputFile.totalPages;
+	totalRuns = ceil(inputFile.totalPages/runSize);
 	cout << "First Pass Performed" << endl;
 	inputFile.writeDiskFile(); //print file to cout
 }
@@ -325,7 +374,7 @@ void ExtMergeSort :: sortFrame(MainMemory &memory, int f){
 }
 
 //Performs merging of 2 runs
-void ExtMergeSort :: merge(DiskFile &inputFile, MainMemory &memory, vector<int> indicies, vector<int> ends){
+void ExtMergeSort :: merge(DiskFile &inputFile, MainMemory &memory, vector<int> &indicies, vector<int> &ends){
 	int leftStart=indicies[0];
 	int rightEnd=ends[ends.size()-1];
 	int finalRunSize = rightEnd - leftStart + 1;
@@ -414,7 +463,7 @@ void ExtMergeSort :: merge(DiskFile &inputFile, MainMemory &memory, vector<int> 
 
 //Performs 2 way merge sort on inputFile using memory
 void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory){
-	
+	// cout<<memory.totalFrames<<endl;
 	if(memory.totalFrames < 3)
 		cout << "Error: Two way merge sort requires atleast 3 frames" << endl; 
 	
@@ -422,7 +471,7 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory){
 
 	int leftStart;
 	
-	for(this->runSize=1;this->runSize<inputFile.totalPages;this->runSize*=(memory.totalFrames-1)){
+	for(;this->runSize<inputFile.totalPages;this->runSize*=(memory.totalFrames-1)){
 		cout << "runSize: " << this->runSize << endl;
 		vector<int> indices;
 		vector<int> ends;
@@ -443,13 +492,15 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory){
 			}
 			cout<<" >"<<endl;
 			// if(indices.size()>memory.totalFrames-1){
-			// 	cout<<indices.size()<<" n "<<memory.totalFrames<<endl;
+			// cout<<indices.size()<<" n "<<ends.size()<<endl;
 			// 	cout<<"check something went wrong"<<endl;
 			// }
 			this->merge(inputFile, memory, indices, ends);
 			// inputFile.writeDiskFile();
-			indices.erase(indices.begin(),indices.end());
-			ends.erase(ends.begin(),ends.end());
+			// indices.erase(indices.begin(),indices.end());
+			// ends.erase(ends.begin(),ends.end());
+			// cout<<indices.size()<<" n "<<ends.size()<<endl;
+
 		}
 		
 		totalPass++;
