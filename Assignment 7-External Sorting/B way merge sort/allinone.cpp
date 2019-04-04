@@ -1,5 +1,5 @@
-#define DISK_PAGE_SIZE 3
-#define MEM_FRAME_SIZE 3
+#define DISK_PAGE_SIZE 1
+#define MEM_FRAME_SIZE 1
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -189,6 +189,8 @@ void Page :: fillPage(vector<int> &v){
 	for(i=0; i < v.size() && i < DISK_PAGE_SIZE; i++){
 		if(v[i] == -1){
 			this->validEntries = i;
+			this->arr[i] = v[i];
+			break;
 		}
 		this->arr[i] = v[i];
 	}
@@ -299,38 +301,35 @@ void MainMemory :: writeFrame(DiskFile &inputFile, int f, int p){
 
 //clears frame f
 void MainMemory :: freeFrame(int f){
-	if(f < totalFrames)
+	if(f < totalFrames){
 		this->valid[f] = false;
+		this->data[f].validEntries = 0;
+	}
 }	
 
 //creates initial runs of 1 page size
 void ExtMergeSort :: firstPass(DiskFile &inputFile, MainMemory &memory){
 	
 	int frame = -1;
-	// load each page to main memory frame and sort
-	// for(int i = 0; i < inputFile.totalPages; i++){
-	// 	frame = memory.loadPage(inputFile, i);
-	// 	this->sortFrame(memory, frame);
-	// 	memory.writeFrame(inputFile, frame, i);
-	// 	memory.freeFrame(frame);
-	// }
 	int ct=0;
 	vector<int> tp;
 	int st=0;
 	for(int i = 0; i < inputFile.totalPages; i++){
-		// cout<<memory.totalFrames<<" "<<ct<<endl;
+		// cout<<i<<" "<<ct<<endl;
 		if(ct<memory.totalFrames){
 			// cout<<"sf "<<inputFile.data[i].validEntries<<endl;
 			for(int j=0;j<inputFile.data[i].validEntries;j++){
 				tp.push_back(inputFile.data[i].arr[j]);
+				if(inputFile.data[i].arr[j]==-1){
+					// cout<<j<<" l "<<i<<" o "<<ct<<endl;
+				}
 			}
 			// cout<<tp.size()<<endl;
 			ct++;
 		}
-		
 		if(ct==memory.totalFrames){
-			cout<<st<<endl;	
 			sort(tp.begin(),tp.end());
+			// cout<<st<<" ds "<<tp[0]<<endl;
 			for(int j=0;j<memory.totalFrames && j+st<inputFile.totalPages;j++){
 				vector<int> t(DISK_PAGE_SIZE,-1);				
 				for(int k=0;k<DISK_PAGE_SIZE && tp.size()>0;k++){
