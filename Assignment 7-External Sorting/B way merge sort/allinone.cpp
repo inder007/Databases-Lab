@@ -1,5 +1,5 @@
-#define DISK_PAGE_SIZE 3
-#define MEM_FRAME_SIZE 3
+#define DISK_PAGE_SIZE 7
+#define MEM_FRAME_SIZE 7
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -359,7 +359,7 @@ void ExtMergeSort :: firstPass(DiskFile &inputFile, MainMemory &memory){
 
 
 
-	runSize = memory.totalFrames;
+	this->runSize = memory.totalFrames;
 	// runSize=1;
 	totalPass = 1;
 	totalRuns = ceil(inputFile.totalPages/runSize);
@@ -483,7 +483,7 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory, int fla
 		int rightEnd=0;
 		while(leftStart<inputFile.totalPages){
 			ct=0;
-			while(ct<memory.totalFrames-1 && leftStart<inputFile.totalPages){
+			while(ct<t && leftStart<inputFile.totalPages){
 				indices.push_back(leftStart);
 				leftStart+=this->runSize;
 				ends.push_back(min(leftStart-1, inputFile.totalPages-1));

@@ -469,8 +469,8 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory){
 	this->firstPass(inputFile, memory);
 
 	int leftStart;
-	int t=(memory.totalFrames-2)/2;
-	for(;this->runSize<inputFile.totalPages;this->runSize*=t){
+	int t=(memory.totalFrames)/2;
+	for(;this->runSize<inputFile.totalPages;this->runSize*=(t-1)){
 		cout << "runSize: " << this->runSize << endl;
 		vector<int> indices;
 		vector<int> ends;
@@ -479,7 +479,7 @@ void ExtMergeSort :: twoWaySort(DiskFile &inputFile, MainMemory &memory){
 		int rightEnd=0;
 		while(leftStart<inputFile.totalPages){
 			ct=0;
-			while(ct<memory.totalFrames-1 && leftStart<inputFile.totalPages){
+			while(ct<t-1 && leftStart<inputFile.totalPages){
 				indices.push_back(leftStart);
 				leftStart+=this->runSize;
 				ends.push_back(min(leftStart-1, inputFile.totalPages-1));
