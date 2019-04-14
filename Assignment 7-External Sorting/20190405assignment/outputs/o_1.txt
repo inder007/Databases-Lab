@@ -1,0 +1,7 @@
+Total Passes required: 1
+Contents of Disk File: 
+Page: 0: 2 11 12 
+Page: 1: 15 20 21 
+Page: 2: 22 39 45 
+Page: 3: 51 61 67 
+Page: 4: 69 73 
