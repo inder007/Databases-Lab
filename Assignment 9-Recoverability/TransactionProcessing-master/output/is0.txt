@@ -1,0 +1,5 @@
+Yes
+Yes
+Strict Yes
+Conflict Serializable: YES
+Order: 1 2 

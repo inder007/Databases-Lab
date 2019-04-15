@@ -1,0 +1,9 @@
+Yes
+No
+Transaction 2 is reading DataItem written by Transaction 1
+And Transaction 1 commits after reading by Transaction 2
+Strict No
+Transaction 2 is reading DataItem written by Transaction 1
+And Transaction 1 commits after reading by Transaction 2
+Conflict Serializable: YES
+Order: 1 2 5 
